@@ -27,9 +27,9 @@ int state;
 #define PRACTICEMSG 'p'
 #define VALIDATEMSG 'a'
 #define VERSIONSTRING "version: pokey_dev"
-#define SENSOR_COUNT 1
+#define SENSOR_COUNT 10
 
-#define TEST_TIMELIMIT 6000000
+#define TEST_TIMELIMIT 60000000
 #define TEST_COMPLETE_TIMEOUT_STR "tc: timeout"
 #define TEST_COMPLETE_SUCCESS_STR "tc: success"
 #define ERROR_MIN_LENGTH 100
@@ -43,7 +43,7 @@ int tool = A0;
 long error_start = 0;
 long error_length;
 #define TOOL_LOWER_LIMIT 100
-#define PUSH_THRESHOLD 400
+#define PUSH_THRESHOLD 100
 long test_start_time;
 
 #define PHOTO_COUNT 2 //2
