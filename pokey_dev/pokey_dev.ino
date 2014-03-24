@@ -84,7 +84,7 @@ void loop() {
       read = Serial.read();
       switch (read) {
       case VALIDATEMSG:
-        state = VALIDATE;
+        state = VALIDATEINIT;
         cursens = 0;
         break;
       case PRACTICEMSG:
