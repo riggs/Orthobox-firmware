@@ -14,7 +14,7 @@ void loop() {
   for (i = 0;i < num; i++) {
     Serial.print(i);
     Serial.print(": ");
-    Serial.println(analogRead(pushPin[i]) < thresh[i]);
+    Serial.println(analogRead(pushPin[i]));// < thresh[i]);
   }
   delay(400);
 }

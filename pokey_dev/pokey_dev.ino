@@ -132,6 +132,7 @@ void loop() {
     }
     if (all_valid) {
       state = PRETEST;
+      Serial.println("ok: all");
     }
     break;
   case TESTREADY:
