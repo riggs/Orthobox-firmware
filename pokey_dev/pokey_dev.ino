@@ -44,7 +44,7 @@ int tool = A0;
 long error_start = 0;
 long error_length;
 #define TOOL_LOWER_LIMIT 100
-#define PUSH_THRESHOLD 100
+#define PUSH_THRESHOLD 120
 long test_start_time;
 
 #define PHOTO_COUNT 2 //2
