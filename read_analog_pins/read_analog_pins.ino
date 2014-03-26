@@ -1,20 +1,20 @@
-int pushPin[]={
+#define PINCOUNT 6
+#define FOREACHPIN for(int i = 0, pin = pins[i]; i < PINCOUNT;pin=pins[i++])
+
+int pins[]={
   A1,A2,A3,A4,A5,A6,A7,A8,A9,A10};
-  
 int num = 6;
-int delaytime = 50;
-int i;
+int delaytime = 400;
 int thresh[] = {60,100,400,70,70,70};
 void setup() {
   Serial.begin(9600);
 }
 
 void loop() {
-//  Serial.println(analogRead(A9));
-  for (i = 0;i < num; i++) {
-    Serial.print(i);
+  FOREACHPIN {
+    Serial.print(pin);
     Serial.print(": ");
-    Serial.println(analogRead(pushPin[i]));// < thresh[i]);
+    Serial.println(analogRead(pin));// < thresh[i]);
   }
-  delay(400);
+  delay(delaytime);
 }
