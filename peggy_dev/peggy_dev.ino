@@ -15,7 +15,7 @@ looking from the front*/
 int sensorPin[]={
   A1,A2,A3,A4,A5,A6};
 int peg_cutoff[] = {
-  60,100,400,70,70,70};
+  60,100,400,70,70,60};
 #define PIN_LOWER_LIMIT 300
 #define SENSOR_BLOCKED 1
 #define SENSOR_CLEAR 0
@@ -122,12 +122,15 @@ void loop() {
   //TODO implement selecting between ABC and CBA
     if (toolremoved()) {
       Serial.println("test ready");
-      test_start_time = millis();
       if (columnstate(0,SENSOR_BLOCKED)) {
         state = TESTAB;
+        test_start_time = millis();
+        digitalWrite(topLed,HIGH);
         Serial.println("mode: testABC");
       } else if (columnstate(2,SENSOR_BLOCKED)) {
         state = TESTCB;
+        test_start_time = millis();
+        digitalWrite(topLed,HIGH);
         Serial.println("mode: testCBA");
       } else {
         for (int i = 0;i < SENSOR_COUNT;i++)
@@ -262,12 +265,14 @@ int toolremoved(void) {
 }
 
 void timeout(void) {
+  digitalWrite(topLed,LOW);
   Serial.print(TEST_COMPLETE_TIMEOUT_STR);
   Serial.print(" t: ");
   Serial.println(elapsedtime());
   state = PRETEST;
 }
 void succeed(void) {
+  digitalWrite(topLed,LOW);
   Serial.print(TEST_COMPLETE_SUCCESS_STR);
   Serial.print(" t: ");
   Serial.println(elapsedtime());
