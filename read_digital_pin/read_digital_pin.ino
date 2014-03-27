@@ -1,6 +1,6 @@
-#define PINCOUNT 2
-#define FOREACHPIN for(int i = 0, pin = pins[i]; i < PINCOUNT;pin=pins[i++])
-int pins[] = {28,30};
+#define PINCOUNT 3
+#define FOREACHPIN for(int i = 0, pin = pins[i]; i < PINCOUNT;pin=pins[++i])
+int pins[] = {26, 28,30};
 void setup() {
   FOREACHPIN
     pinMode(pin,INPUT);

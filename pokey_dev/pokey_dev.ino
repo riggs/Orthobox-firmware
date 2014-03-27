@@ -28,7 +28,7 @@ int state;
 #define VERSIONSTRING "version: pokey_dev"
 #define SENSOR_COUNT 10
 
-#define TEST_TIMELIMIT 60000000
+#define TEST_TIMELIMIT (1000 * 60)
 #define TEST_COMPLETE_TIMEOUT_STR "tc: timeout"
 #define TEST_COMPLETE_SUCCESS_STR "tc: success"
 #define ERROR_MIN_LENGTH 100
@@ -153,6 +153,7 @@ void loop() {
       Serial.println(elapsedtime());
       digitalWrite(ledPin[pin_order[cursens]],LOW);
       //        for (int i = 0;i <= SENSOR_COUNT;i++) digitalWrite(ledPin[pin_order[i]],LOW);
+      digitalWrite(topLed,LOW);
       state = PRETEST;
       cursens = 0;
     } else {
