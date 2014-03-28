@@ -28,6 +28,10 @@ int state;
 #define VERSIONSTRING "version: pokey_dev"
 #define SENSOR_COUNT 10
 
+long last_blink;
+int blink_mode;
+#define BLINKTIME 100
+
 #define TEST_TIMELIMIT (1000 * 60)
 #define TEST_COMPLETE_TIMEOUT_STR "tc: timeout"
 #define TEST_COMPLETE_SUCCESS_STR "tc: success"
@@ -67,7 +71,7 @@ void setup() {
   pinMode(topLed,OUTPUT);
   pinMode(photopin[0], INPUT);
   pinMode(photopin[1], INPUT);
-
+  last_blink = 0;
   for(int i=0; i<SENSOR_COUNT; i++) 
     pinMode(ledPin[i], OUTPUT);
   randomSeed(analogRead(15));  //setting a constant seed to produce the same random sequence everytime
@@ -157,7 +161,11 @@ void loop() {
       state = PRETEST;
       cursens = 0;
     } else {
-      digitalWrite(ledPin[pin_order[cursens]],HIGH);//next LED on
+      if ((millis()-last_blink) > BLINKTIME) {
+        last_blink = millis();
+        digitalWrite(ledPin[pin_order[cursens]],blink_mode);//next LED on
+        blink_mode = blink_mode == HIGH ? LOW : HIGH;
+      }
       analogval = analogRead(sensorPin[pin_order[cursens]]);
       if (analogval > PUSH_THRESHOLD) {
         //report successful hit, move to next one
