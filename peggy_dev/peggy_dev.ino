@@ -3,10 +3,11 @@
  Peter O'Hanley
  */
  #define UNKNOWN_PIN 0
-//TODO make topled actually do something
+//DONE make topled actually do something
 //DONE proper drop error handling like wall errors
 //TODO the students can currently move directly from one wall to the other. If this is 
 //  not desired, it can be fixed.
+//TODO make the full test be AB -> BC -> CB -> BA (or the other direction)
 /* pin numbers
 3 0
 4 1
@@ -26,6 +27,22 @@ int analogval;
 int dropcount = 0;
 #define PIN_DROP_COOLDOWN 500
 
+const char VERSIONMSG = 'v';
+const char TESTMSG = 't';
+const char PRACTICEMSG = 'p';
+const char VALIDATEMSG = 'a';
+const char TEST_READY_MSG = 'e';
+const char ERROR_WALL_MSG = 'w';
+const char ERROR_DROP_MSG = /* the */ 'd';
+const char PIN_TOUCHED_MSG = 'u';
+const char TEST_COMPLETE_TIMEOUT_MSG = 'i';
+const char TEST_COMPLETE_SUCCESS_MSG = 's';
+const char VALIDATE_PIN_OK = 'k'; //then the number
+#define UNUSED_ARG 0 //for readability
+
+unsigned long dong = 2L;
+#define VERSIONCONST dong
+
 #define PRETEST 0
 #define VALIDATE 1
 #define TESTREADY 2
@@ -41,21 +58,14 @@ int dropcount = 0;
 
 int state, prevstate; /* stack depth of 1 will be fine */
 
-#define VERSIONMSG 'v'
-#define TESTMSG 't'
-#define VALIDATEMSG 'a'
-#define VERSIONSTRING "version: peggy_dev"
 #define INVALID_START_STATE "error: invalid start state"
 #define SENSOR_COUNT 6
 
-#define TEST_TIMELIMIT 600000
-#define TEST_COMPLETE_TIMEOUT_STR "tc: timeout"
-#define TEST_COMPLETE_SUCCESS_STR "tc: success"
+#define TEST_TIMELIMIT 180000
 
 int pintouched = 0;
 int cursens;
 char read;
-#define VALIDATE_PIN_OK "ok: " //then the number
 
 int tool = A0;
 long error_start = 0;
@@ -82,7 +92,7 @@ void setup() {
   Serial.begin(9600);
   //TODO ensure this pin is actually not used
   randomSeed(analogRead(15));
-  Serial.println(VERSIONSTRING);
+  write_packet(VERSIONMSG,VERSIONCONST,UNUSED_ARG);
 }
 
 void loop() {
@@ -92,6 +102,9 @@ void loop() {
     if (Serial.available()) {
       read = Serial.read();
       switch (read) {
+      case VERSIONMSG:
+        write_packet(VERSIONMSG,VERSIONCONST,UNUSED_ARG);
+      break;  
       case VALIDATEMSG:
         state = VALIDATE;
         cursens = 0;
@@ -108,12 +121,11 @@ void loop() {
     //TODO this validate is broken
     /* check each photosensor in turn for coverage.*/
     if (digitalRead(sensorPin[cursens]) == PHOTO_BLOCKED) {
-      Serial.println(VALIDATE_PIN_OK);
-      Serial.println(cursens);
+      write_packet(VALIDATE_PIN_OK,cursens,UNUSED_ARG);
       cursens++;
     }
     if (cursens >= SENSOR_COUNT) {
-      Serial.println("ok: all"); // not in production
+      write_packet(VALIDATE_PIN_OK,SENSOR_COUNT,UNUSED_ARG);
       state = PRETEST;
       cursens = 0;
     }
@@ -121,23 +133,23 @@ void loop() {
   case TESTREADY:
   //TODO implement selecting between ABC and CBA
     if (toolremoved()) {
-      Serial.println("test ready");
+      write_packet(TEST_READY_MSG,UNUSED_ARG,UNUSED_ARG);
       if (columnstate(0,SENSOR_BLOCKED)) {
         state = TESTAB;
         test_start_time = millis();
         digitalWrite(topLed,HIGH);
-        Serial.println("mode: testABC");
+//        Serial.println("mode: testABC");
       } else if (columnstate(2,SENSOR_BLOCKED)) {
         state = TESTCB;
         test_start_time = millis();
         digitalWrite(topLed,HIGH);
-        Serial.println("mode: testCBA");
-      } else {
+//        Serial.println("mode: testCBA");
+      } /*else {
         for (int i = 0;i < SENSOR_COUNT;i++)
         Serial.println(peg_sensor_read(i));
         Serial.println(INVALID_START_STATE);
         delay(1000);
-      }
+      }*/
     }
     break;
   case TESTAB:
@@ -147,7 +159,7 @@ void loop() {
       if (columnstate(0,SENSOR_CLEAR)
        && columnstate(1,SENSOR_BLOCKED)) {
         state = TESTBC;
-        Serial.println("testab done");
+//        Serial.println("testab done");
       }
       if (analogRead(tool) < TOOL_LOWER_LIMIT) {
         error_start = millis();
@@ -188,7 +200,7 @@ void loop() {
       if (columnstate(2,SENSOR_CLEAR)
        && columnstate(1,SENSOR_BLOCKED)) {
         state = TESTBA;
-        Serial.println("testcb done");
+//        Serial.println("testcb done");
       }
       if (analogRead(tool) < TOOL_LOWER_LIMIT) {
         error_start = millis();
@@ -226,22 +238,15 @@ void loop() {
     if (analogRead(tool) < TOOL_LOWER_LIMIT) {
       //still error
     } else {
-      //while (analogRead(tool) < TOOL_LOWER_LIMIT);
         error_length = millis() - error_start;
-        Serial.print("ew: ");
-        Serial.print(error_length);
-        Serial.print(" t: ");
-        Serial.println(elapsedtime());
+        write_packet(ERROR_WALL_MSG,error_length,elapsedtime());
         state = prevstate;
     }
     break;
   case DROPERROR:
     if (digitalRead(dropsensor) == PHOTO_CLEAR) {
       error_length = millis() - error_start;
-      Serial.print("ed: ");
-      Serial.print(error_length);
-      Serial.print(" t: ");
-      Serial.println(elapsedtime());
+      write_packet(ERROR_DROP_MSG,error_length,elapsedtime());
       state = prevstate;
     }
     break;
@@ -266,16 +271,12 @@ int toolremoved(void) {
 
 void timeout(void) {
   digitalWrite(topLed,LOW);
-  Serial.print(TEST_COMPLETE_TIMEOUT_STR);
-  Serial.print(" t: ");
-  Serial.println(elapsedtime());
+  write_packet(TEST_COMPLETE_TIMEOUT_MSG,elapsedtime(),UNUSED_ARG);
   state = PRETEST;
 }
 void succeed(void) {
   digitalWrite(topLed,LOW);
-  Serial.print(TEST_COMPLETE_SUCCESS_STR);
-  Serial.print(" t: ");
-  Serial.println(elapsedtime());
+  write_packet(TEST_COMPLETE_SUCCESS_MSG,elapsedtime(),UNUSED_ARG);
   state = PRETEST;
 }
 
@@ -299,4 +300,60 @@ int peg_sensor_read(int peg) {
   return (analogRead(sensorPin[peg]) < peg_cutoff[peg])
     ? SENSOR_BLOCKED
     : SENSOR_CLEAR;
+}
+void write_packet(char messagetype, long foo, long bar) {
+  switch (messagetype) {
+    case ERROR_WALL_MSG:
+      Serial.write(ERROR_WALL_MSG);
+      Serial.write((char) 10);
+      write_long(foo);
+      write_long(bar);
+      break;
+    case ERROR_DROP_MSG:
+      Serial.write(ERROR_DROP_MSG);
+      Serial.write((char) 10);
+      write_long(foo);
+      write_long(bar);
+      break;
+    case TEST_COMPLETE_SUCCESS_MSG:
+      Serial.write(TEST_COMPLETE_SUCCESS_MSG);
+      Serial.write((char) 6);
+      write_long(foo);
+      break;
+    case TEST_COMPLETE_TIMEOUT_MSG:
+      Serial.write(TEST_COMPLETE_TIMEOUT_MSG);
+      Serial.write((char) 6);
+      write_long(foo);
+      break;
+    case PIN_TOUCHED_MSG:
+      Serial.write(PIN_TOUCHED_MSG);
+      Serial.write((char) 10);
+      write_long(foo);
+      write_long(bar);
+      break;
+    case TEST_READY_MSG:
+      Serial.write(TEST_READY_MSG);
+      Serial.write((char) 2);
+      break;
+    case VERSIONMSG:
+      Serial.write(VERSIONMSG);
+      Serial.write((char) 6);
+      write_long(foo);
+      break;
+    case VALIDATE_PIN_OK:
+      Serial.write(VALIDATE_PIN_OK);
+      Serial.write((char) 6);
+      write_long(foo);
+      break;
+  }
+}
+void write_long(long var) {
+  Serial.write(var);
+  Serial.write(var>>8);
+  Serial.write(var>>16);
+  Serial.write(var>>24);
+}
+void write_int(int var) {
+  Serial.write(var);
+  Serial.write(var>>8);
 }
