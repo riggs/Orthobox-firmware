@@ -23,7 +23,7 @@ void loop() {
       write_packet(ERROR_DROP_MSG,10,100);
       write_packet(ERROR_WALL_MSG,40,140);
       write_packet(ERROR_DROP_MSG,13,180);
-      delay(1000*15);
+      delay(15000);
       write_packet(ERROR_WALL_MSG,3,14000);
       write_packet(TEST_COMPLETE_SUCCESS_MSG,15000,UNUSED_ARG);
     }

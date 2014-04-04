@@ -42,7 +42,7 @@ long last_blink;
 int blink_mode;
 #define BLINKTIME 100
 
-#define TEST_TIMELIMIT 180000
+#define TEST_TIMELIMIT 240000
 #define ERROR_MIN_LENGTH 50
 
 int pin_validated[] = {
@@ -55,7 +55,7 @@ int tool = A0;
 long error_start = 0;
 long error_length;
 #define TOOL_LOWER_LIMIT 80
-#define PUSH_THRESHOLD 120
+#define PUSH_THRESHOLD 250
 long test_start_time;
 
 #define PHOTO_COUNT 2 //2

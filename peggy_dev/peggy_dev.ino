@@ -61,7 +61,7 @@ int state, prevstate; /* stack depth of 1 will be fine */
 #define INVALID_START_STATE "error: invalid start state"
 #define SENSOR_COUNT 6
 
-#define TEST_TIMELIMIT 180000
+#define TEST_TIMELIMIT 240000
 
 int pintouched = 0;
 int cursens;
@@ -81,6 +81,7 @@ int photo[] = {
 int photopin[] = {
   24, 26};
 
+int crosscount;
 int pinDropped;
 void setup() {
   state = PRETEST;
@@ -133,6 +134,7 @@ void loop() {
   case TESTREADY:
   //TODO implement selecting between ABC and CBA
     if (toolremoved()) {
+      crosscount = 1;
       write_packet(TEST_READY_MSG,UNUSED_ARG,UNUSED_ARG);
       if (columnstate(0,SENSOR_BLOCKED)) {
         state = TESTAB;
@@ -179,7 +181,12 @@ void loop() {
     } else {
       if (columnstate(1,SENSOR_CLEAR)
        && columnstate(2,SENSOR_BLOCKED)) {
-        succeed();
+         if (crosscount <= 0) {
+           succeed();
+         } else {
+           crosscount--;
+           state = CB;
+         }
       }
       if (analogRead(tool) < TOOL_LOWER_LIMIT) {
         error_start = millis();
@@ -220,7 +227,12 @@ void loop() {
     } else {
       if (columnstate(1,SENSOR_CLEAR)
        && columnstate(0,SENSOR_BLOCKED)) {
-        succeed();
+        if (crosscount <= 0) {
+           succeed();
+         } else {
+           crosscount--;
+           state = AB;
+         }
       }
       if (analogRead(tool) < TOOL_LOWER_LIMIT) {
         error_start = millis();
