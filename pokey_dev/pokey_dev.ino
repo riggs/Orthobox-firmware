@@ -17,14 +17,12 @@ int analogval;
 #define VALIDATE 1
 #define VALIDATEINIT 2
 #define TEST 3
-#define PRACTICE 4
-#define TESTREADY 5
-#define WALLERROR 6
+#define TESTREADY 4
+#define WALLERROR 5
 int state;
 
 const char VERSIONMSG = 'v';
 const char TESTMSG = 't';
-const char PRACTICEMSG = 'p';
 const char VALIDATEMSG = 'a';
 const char TEST_READY_MSG = 'e';
 const char ERROR_WALL_MSG = 'w';
@@ -44,7 +42,7 @@ long last_blink;
 int blink_mode;
 #define BLINKTIME 100
 
-#define TEST_TIMELIMIT 240000
+#define TEST_TIMELIMIT 180000
 #define ERROR_MIN_LENGTH 50
 
 int pin_validated[] = {
@@ -73,10 +71,9 @@ int pin_order_test[] = {
   0,1,2,3,4,5,6,7,8};
 
 void setup() {
-//  state = PRECONNECT;
   state = PRETEST;
   Serial.begin(9600);
-  write_packet(VERSIONMSG,UNUSED_ARG,UNUSED_ARG);
+  write_packet(VERSIONMSG,VERSIONCONST,UNUSED_ARG);
   pinMode(topLed,OUTPUT);
   pinMode(photopin[0], INPUT);
   pinMode(photopin[1], INPUT);
@@ -100,14 +97,9 @@ void loop() {
         state = VALIDATEINIT;
         cursens = 0;
         break;
-      case PRACTICEMSG:
-        state = PRACTICE;
-        cursens = 0;
-        break;
       case TESTMSG:
         //somehow need to start test time
-
-        arrcpy(pin_order,pin_order_test,SENSOR_COUNT);
+        shuffle(pin_order,SENSOR_COUNT);
         state = TESTREADY;
         cursens = 0;
         break;
@@ -192,11 +184,6 @@ void loop() {
       }
     }
     break;
-  case PRACTICE:
-    //practicing is just testing with randomized pin order
-    shuffle(pin_order,SENSOR_COUNT);
-    state = TESTREADY;
-    break;
   case WALLERROR:
     if (analogRead(tool) < TOOL_LOWER_LIMIT) {
       //still error
@@ -269,12 +256,6 @@ void shuffle(int arr1[], int len) {
     temp = arr1[a];
     arr1[a] = arr1[r];
     arr1[r] = temp;
-  }
-}
-
-void arrcpy(int* dest, int* src, int len) {
-  for (int i = 0; i < len; ++i) {
-    dest[i] = src[i];
   }
 }
 
