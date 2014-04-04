@@ -1,4 +1,4 @@
-#define PINCOUNT 6
+#define PINCOUNT 10
 #define FOREACHPIN for(int i = 0, pin = pins[i]; i < PINCOUNT;pin=pins[++i])
 
 int pins[]={
