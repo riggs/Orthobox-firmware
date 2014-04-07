@@ -5,9 +5,9 @@
  #define UNKNOWN_PIN 0
 //DONE make topled actually do something
 //DONE proper drop error handling like wall errors
-//TODO the students can currently move directly from one wall to the other. If this is 
+//DONE the students can currently move directly from one wall to the other. If this is 
 //  not desired, it can be fixed.
-//TODO make the full test be AB -> BC -> CB -> BA (or the other direction)
+//DONE make the full test be AB -> BC -> CB -> BA (or the other direction)
 /* pin numbers
 3 0
 4 1
@@ -159,7 +159,8 @@ void loop() {
       timeout();
     } else {
       if (columnstate(0,SENSOR_CLEAR)
-       && columnstate(1,SENSOR_BLOCKED)) {
+       && columnstate(1,SENSOR_BLOCKED)
+       && columnstate(2,SENSOR_CLEAR)) {
         state = TESTBC;
 //        Serial.println("testab done");
       }
@@ -180,12 +181,13 @@ void loop() {
       timeout();
     } else {
       if (columnstate(1,SENSOR_CLEAR)
-       && columnstate(2,SENSOR_BLOCKED)) {
+       && columnstate(2,SENSOR_BLOCKED)
+       && columnstate(0,SENSOR_CLEAR)) {
          if (crosscount <= 0) {
            succeed();
          } else {
            crosscount--;
-           state = CB;
+           state = TESTCB;
          }
       }
       if (analogRead(tool) < TOOL_LOWER_LIMIT) {
@@ -205,7 +207,8 @@ void loop() {
       timeout();
     } else {
       if (columnstate(2,SENSOR_CLEAR)
-       && columnstate(1,SENSOR_BLOCKED)) {
+       && columnstate(1,SENSOR_BLOCKED)
+       && columnstate(0,SENSOR_CLEAR)) {
         state = TESTBA;
 //        Serial.println("testcb done");
       }
@@ -226,12 +229,13 @@ void loop() {
       timeout();
     } else {
       if (columnstate(1,SENSOR_CLEAR)
-       && columnstate(0,SENSOR_BLOCKED)) {
+       && columnstate(0,SENSOR_BLOCKED)
+       && columnstate(2,SENSOR_CLEAR)) {
         if (crosscount <= 0) {
            succeed();
          } else {
            crosscount--;
-           state = AB;
+           state = TESTAB;
          }
       }
       if (analogRead(tool) < TOOL_LOWER_LIMIT) {

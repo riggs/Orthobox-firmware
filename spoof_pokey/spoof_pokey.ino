@@ -24,7 +24,7 @@ void loop() {
       write_packet(PIN_TOUCHED_MSG,1,500);
       delay(1000*15);
       write_packet(PIN_TOUCHED_MSG,2,14000);
-      write_packet(TEST_COMPLETE_SUCCESS_MSG,15000,UNUSED_ARG);
+      write_packet(TEST_COMPLETE_TIMEOUT_MSG,15000,UNUSED_ARG);
     }
   }
 }
