@@ -23,8 +23,15 @@ void loop() {
       write_packet(ERROR_WALL_MSG,40,200);
       write_packet(PIN_TOUCHED_MSG,1,500);
       delay(1000*15);
-      write_packet(PIN_TOUCHED_MSG,2,14000);
-      write_packet(TEST_COMPLETE_TIMEOUT_MSG,15000,UNUSED_ARG);
+      write_packet(PIN_TOUCHED_MSG,2,1000);
+      write_packet(PIN_TOUCHED_MSG,3,2000);
+      write_packet(PIN_TOUCHED_MSG,4,3000);
+      write_packet(PIN_TOUCHED_MSG,5,4000);
+      write_packet(PIN_TOUCHED_MSG,6,5000);
+      write_packet(PIN_TOUCHED_MSG,7,6000);
+      write_packet(PIN_TOUCHED_MSG,8,14000);
+//      write_packet(PIN_TOUCHED_MSG,9,14500);
+      write_packet(TEST_COMPLETE_SUCCESS_MSG,15000,UNUSED_ARG);
     }
   }
 }

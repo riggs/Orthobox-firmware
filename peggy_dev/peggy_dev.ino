@@ -321,7 +321,9 @@ void write_packet(char messagetype, long foo, long bar) {
   switch (messagetype) {
     case ERROR_WALL_MSG:
       Serial.write(ERROR_WALL_MSG);
+      delay(0);
       Serial.write((char) 10);
+      delay(0);
       write_long(foo);
       write_long(bar);
       break;
