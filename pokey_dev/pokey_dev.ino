@@ -2,9 +2,10 @@
  March 11, 2014
  Peter O'Hanley
  */
-//TODO fix the problem with the last pin not getting its light turned on
-//TODO check if above still happens
+ //TODO make this file just a header
 //always use ++i ARDUINO IS FUCK
+#include "header.h"
+
 int sensorPin[]={
   A1, /*A2,*/ A3, A4, A5, A6, A7, A8, A9, A10};
 int ledPin[]={
@@ -12,6 +13,11 @@ int ledPin[]={
 int topLed = 44;
 
 int analogval;
+
+#define SENSOR_COUNT 9
+//no more than 9
+//A2 is basically impossible
+Stddev stds[9];
 
 #define PRETEST 0
 #define VALIDATE 1
@@ -34,9 +40,6 @@ const char VALIDATE_PIN_OK = 'k'; //then the number
 
 unsigned long dong = 1L;
 #define VERSIONCONST dong
-#define SENSOR_COUNT 9
-//no more than 9
-//A2 is basically impossible
 
 long last_blink;
 int blink_mode;
@@ -55,7 +58,7 @@ int tool = A0;
 long error_start = 0;
 long error_length;
 #define TOOL_LOWER_LIMIT 80
-#define PUSH_THRESHOLD 250
+#define PUSH_THRESHOLD 20
 long test_start_time;
 
 #define PHOTO_COUNT 2 //2
@@ -80,6 +83,8 @@ void setup() {
   last_blink = 0;
   for(int i=0; i<SENSOR_COUNT; ++i) 
     pinMode(ledPin[i], OUTPUT);
+  for(int i=0; i<SENSOR_COUNT; ++i) 
+    clear_std(&stds[i]);
   randomSeed(analogRead(15));  //setting a constant seed to produce the same random sequence everytime
   
 }
@@ -87,7 +92,8 @@ void setup() {
 void loop() {
   for (int i = 0;i < PHOTO_COUNT;++i) 
     photo[i] = digitalRead(photopin[i]);
-
+  for(int i=0; i<SENSOR_COUNT; ++i) 
+    push(&stds[i],analogRead(sensorPin[i]));
   switch(state) {
   case PRETEST:
     if (Serial.available()) {
@@ -125,7 +131,7 @@ void loop() {
     all_valid = 1;
     for (int i = 0;i < SENSOR_COUNT;++i) {
       if (!pin_validated[i] ) {
-        if (analogRead(sensorPin[i]) > PUSH_THRESHOLD) {
+        if (std_dev(&stds[i]) > PUSH_THRESHOLD) {
           pin_validated[i] = 1;
           digitalWrite(ledPin[i],LOW);
           write_packet(VALIDATE_PIN_OK,i,UNUSED_ARG);
@@ -163,8 +169,7 @@ void loop() {
         digitalWrite(ledPin[pin_order[cursens]],blink_mode);
         blink_mode = blink_mode == HIGH ? LOW : HIGH;
       }
-      analogval = analogRead(sensorPin[pin_order[cursens]]);
-      if (analogval > PUSH_THRESHOLD) {
+      if (std_dev(&stds[pin_order[cursens]]) > PUSH_THRESHOLD) {
         //report successful hit, move to next one
         digitalWrite(ledPin[pin_order[cursens]],LOW);
         last_blink = -1000;
