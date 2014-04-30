@@ -2,13 +2,13 @@
  March 11, 2014
  Peter O'Hanley
  */
-//TODO fix the problem with the last pin not getting its light turned on
-//TODO check if above still happens
 //always use ++i ARDUINO IS FUCK
 int sensorPin[]={
   A1, /*A2,*/ A3, A4, A5, A6, A7, A8, A9, A10};
 int ledPin[]={
   32, /*34,*/ 36, 38, 40, 42, 46, 48, 50, 52};
+int sensor_thresh[]={
+  250,250,250,250,250,250,250,250,250};
 int topLed = 44;
 
 int analogval;
@@ -55,7 +55,6 @@ int tool = A0;
 long error_start = 0;
 long error_length;
 #define TOOL_LOWER_LIMIT 80
-#define PUSH_THRESHOLD 250
 long test_start_time;
 
 #define PHOTO_COUNT 2 //2
@@ -125,7 +124,7 @@ void loop() {
     all_valid = 1;
     for (int i = 0;i < SENSOR_COUNT;++i) {
       if (!pin_validated[i] ) {
-        if (analogRead(sensorPin[i]) > PUSH_THRESHOLD) {
+        if (analogRead(sensorPin[i]) > sensor_thresh[i]) {
           pin_validated[i] = 1;
           digitalWrite(ledPin[i],LOW);
           write_packet(VALIDATE_PIN_OK,i,UNUSED_ARG);
@@ -164,7 +163,7 @@ void loop() {
         blink_mode = blink_mode == HIGH ? LOW : HIGH;
       }
       analogval = analogRead(sensorPin[pin_order[cursens]]);
-      if (analogval > PUSH_THRESHOLD) {
+      if (analogval > sensor_thresh[pin_order[cursens]]) {
         //report successful hit, move to next one
         digitalWrite(ledPin[pin_order[cursens]],LOW);
         last_blink = -1000;
