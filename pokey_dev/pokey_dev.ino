@@ -2,7 +2,7 @@
  March 11, 2014
  Peter O'Hanley
  */
-//always use ++i ARDUINO IS FUCK
+//always use ++i
 int sensorPin[]={
   A1, /*A2,*/ A3, A4, A5, A6, A7, A8, A9, A10};
 int ledPin[]={
@@ -79,8 +79,7 @@ void setup() {
   last_blink = 0;
   for(int i=0; i<SENSOR_COUNT; ++i) 
     pinMode(ledPin[i], OUTPUT);
-  randomSeed(analogRead(15));  //setting a constant seed to produce the same random sequence everytime
-  
+  randomSeed(analogRead(15));
 }
 
 void loop() {
