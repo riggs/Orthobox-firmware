@@ -10,6 +10,8 @@ int sensorPin[]={
   A1, /*A2,*/ A3, A4, A5, A6, A7, A8, A9, A10};
 int ledPin[]={
   32, /*34,*/ 36, 38, 40, 42, 46, 48, 50, 52};
+int sensor_thresh[]={
+  250,250,250,250,250,250,250,250,250};
 int topLed = 44;
 
 int analogval;
